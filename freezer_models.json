@@ -5,6 +5,12 @@
       "R": 914.0,
       "H": 1524.0,
       "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1879P",
+      "R": 695.0,
+      "H": 885.19,
+      "handle_bar_clearance": 25.4
     }
   ]
 }
