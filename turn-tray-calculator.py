@@ -30,7 +30,7 @@ class Screen1(QWidget):
 
         # MVE LOGO 
         logo = QLabel() 
-        pixmap = QPixmap("MVE logos/Logo.jpg")
+        pixmap = QPixmap("MVE logos/white_logo.png")
         logo.setPixmap(pixmap)
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -68,6 +68,12 @@ class Screen2(QWidget):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        # MVE Logo
+        logo = QLabel() 
+        pixmap = QPixmap("MVE logos/white_logo.png")
+        logo.setPixmap(pixmap)
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         # Shape dropdown 
         shape_label = QLabel("Select Shape:")
         self.shape_dropdown = QComboBox() 
@@ -79,7 +85,8 @@ class Screen2(QWidget):
         calc_btn = QPushButton("Calculate")
         calc_btn.clicked.connect(self.on_calculate)
 
-        layout.addWidget(shape_label)
+        layout.addWidget(logo)
+        layout.addWidget(shape_label)      
         layout.addWidget(self.shape_dropdown)
         layout.addLayout(self.dim_layout)
         layout.addWidget(calc_btn)
@@ -147,7 +154,7 @@ class Screen3(QWidget):
 
         # MVE Logo 
         logo = QLabel() 
-        pixmap = QPixmap("MVE logos/Logo.jpg")
+        pixmap = QPixmap("MVE logos/white_logo.png")
         logo.setPixmap(pixmap)
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
