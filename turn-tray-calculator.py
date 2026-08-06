@@ -14,7 +14,149 @@
 
 import math 
 import json
-import os 
+import os
+import sys 
+from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import Qt
+
+class Screen1(QWidget):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
+        layout = QVBoxLayout() 
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter) 
+
+        # MVE LOGO 
+        logo = QLabel() 
+        pixmap = QPixmap("MVE logos/Logo.jpg")
+        logo.setPixmap(pixmap)
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Model ID input
+        self.model_input = QLineEdit() 
+        self.model_input.setPlaceholderText("Enter Freezer Model ID")
+
+        # Start button 
+        start_btn = QPushButton("Start") 
+        start_btn.clicked.connect(self.on_start) 
+
+        layout.addWidget(logo) 
+        layout.addWidget(self.model_input)
+        layout.addWidget(start_btn)
+        self.setLayout(layout) 
+    
+    def on_start(self):
+        model_id = self.model_input.text().strip() 
+        json_path = os.path.join(directory, "freezer_models.json")
+
+        if not json_checker(json_path):
+            QMessageBox.critical(self, "Error", "freezer_models.json not found")
+            return 
+        try:
+            self.parent.freezer = load_freezer(model_id, json_path)
+            self.parent.stack.setCurrentIndex(1)
+        except KeyError as e:
+            QMessageBox.critical(self, "Error", str(e))
+
+class Screen2(QWidget):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent 
+
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Shape dropdown 
+        shape_label = QLabel("Select Shape:")
+        self.shapee_dropdown = QComboBox() 
+        self.shape_dropdown.addItems(["Cylinder", "Cube", "Rectangle"])
+        self.shape_dropdown.currentIndexChanged.connect(self.on_shape_changed)
+
+        self.dim_layout = QVBoxLayout() 
+
+        calc_btn = QPushButton("Calculate")
+        calc_btn.clicked.connect(self.on_calcualte)
+
+        layout.addWidget(shape_label)
+        layout.addWidget(self.shape_dropdown)
+        layout.addLayout(self.dim_layout)
+        layout.addWidget(calc_btn)
+        self.setLayout(layout) 
+
+        self.on_shape_changed(0) # default fields for first shape 
+
+    def on_shape_changed(self, index): 
+        # clear existing dimensions field 
+        while self.dim_layout.count() 
+            item = self.dim_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        if index == 0: 
+            self.radius_input = QLineEdit() 
+            self.radius_input.setPlaceholderText("Radius (mm)")
+            self.height_input = QLineEdit() 
+            self.height_input.setPlaceholderText("Height (mm)")
+            self.dim_layout.addWidget(self.radius_input)
+            self.dim_layout.addWidget(self.height_input)
+
+        elif index == 1: # Cube 
+            self.side_input = QLineEdit() 
+            self.side_input.setPlaceholderText("Side Length (mm)")
+            self.dim_layout.addWidget(self.side_input)
+
+        elif index == 2:
+            self.length_input = QLineEdit() 
+            self.length_input.setPlaceholderText("Length (mm)")
+            self.height_input = QLineEdit() 
+            self.height_input.setPlaceholderText("Height (mm)")
+            self.width_input = QLineEdit() 
+            self.width_input.setPlaceholderText("Width (mm)")
+            self.dim_layout.addWidget(self.length_input)
+            self.dim_layout.addWidget(self.height_input)
+            self.dim_layout.addWidget(self.width_input)
+    
+    def on_calculate(self):
+        index = self.shape_dropdown.currentIndex()
+
+        if index == 0:
+            dims = (float(self.radius_input.text()), float(self.height_input.text()))
+            shape = "C"
+        elif index == 1:
+            dims = (float(self.side_input.text()))
+            shape = "S"
+        elif index == 2:
+            dims = (float(self.length_input.text()), float(self.width_input.text()), float(self.height_input.text()))
+            shape = "R"
+
+    
+
+
+class Screen3(QWidget):
+    def __init__(self, parent):
+        super().__init__()
+        # Screen 3 UI is here
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.freezer = None # Store loaded freezer dict so all screens can access it
+        
+        self.stack = QStackedWidget()
+        self.setCentralWidget(self.stack)
+        
+        self.screen1 = Screen1(self)
+        self.screen2 = Screen2(self)
+        self.screen3 = Screen3(self)
+
+        self.stack.addWidget(self.screen1)
+        self.stack.addWidget(self.screen2)
+        self.stack.addWidget(self.screen3) 
+
+        self.stack.setCurrentIndex(0) # Start on screen 1
+
 
 directory = '' # Location of JSON files 
 
@@ -174,4 +316,9 @@ def main():
     print(f"Total freezer capacity for this object: {result['total_capacity']}")
 
 if __name__ == "__main__":
-    main() 
+    app = QApplication(sys.argv)
+    window = MainWindow() 
+    window.show()
+    sys.exit(app.exec())
+
+
