@@ -16,7 +16,7 @@ import math
 import json
 import os
 import sys 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt6.QtWidgets import QComboBox, QApplication, QMainWindow, QStackedWidget, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 
@@ -70,14 +70,14 @@ class Screen2(QWidget):
 
         # Shape dropdown 
         shape_label = QLabel("Select Shape:")
-        self.shapee_dropdown = QComboBox() 
+        self.shape_dropdown = QComboBox() 
         self.shape_dropdown.addItems(["Cylinder", "Cube", "Rectangle"])
         self.shape_dropdown.currentIndexChanged.connect(self.on_shape_changed)
 
         self.dim_layout = QVBoxLayout() 
 
         calc_btn = QPushButton("Calculate")
-        calc_btn.clicked.connect(self.on_calcualte)
+        calc_btn.clicked.connect(self.on_calculate)
 
         layout.addWidget(shape_label)
         layout.addWidget(self.shape_dropdown)
@@ -89,7 +89,7 @@ class Screen2(QWidget):
 
     def on_shape_changed(self, index): 
         # clear existing dimensions field 
-        while self.dim_layout.count() 
+        while self.dim_layout.count():
             item = self.dim_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
@@ -110,13 +110,14 @@ class Screen2(QWidget):
         elif index == 2:
             self.length_input = QLineEdit() 
             self.length_input.setPlaceholderText("Length (mm)")
-            self.height_input = QLineEdit() 
-            self.height_input.setPlaceholderText("Height (mm)")
             self.width_input = QLineEdit() 
             self.width_input.setPlaceholderText("Width (mm)")
+            self.height_input = QLineEdit() 
+            self.height_input.setPlaceholderText("Height (mm)")
             self.dim_layout.addWidget(self.length_input)
-            self.dim_layout.addWidget(self.height_input)
             self.dim_layout.addWidget(self.width_input)
+            self.dim_layout.addWidget(self.height_input)
+
     
     def on_calculate(self):
         index = self.shape_dropdown.currentIndex()
@@ -125,19 +126,50 @@ class Screen2(QWidget):
             dims = (float(self.radius_input.text()), float(self.height_input.text()))
             shape = "C"
         elif index == 1:
-            dims = (float(self.side_input.text()))
+            dims = (float(self.side_input.text()),)
             shape = "S"
         elif index == 2:
             dims = (float(self.length_input.text()), float(self.width_input.text()), float(self.height_input.text()))
             shape = "R"
 
-    
+        result = allocate_single_type(self.parent.freezer, shape, dims) 
+        self.parent.screen3.set_result(result["total_capacity"])
+        self.parent.stack.setCurrentIndex(2)
 
 
 class Screen3(QWidget):
     def __init__(self, parent):
         super().__init__()
-        # Screen 3 UI is here
+        self.parent = parent 
+
+        layout = QVBoxLayout() 
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # MVE Logo 
+        logo = QLabel() 
+        pixmap = QPixmap("MVE logos/Logo.jpg")
+        logo.setPixmap(pixmap)
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Result Label 
+        self.result_label = QLabel("Total Capacity: --") 
+        self.result_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Calculate again button 
+        again_btn = QPushButton("Calculate Again")
+        again_btn.clicked.connect(self.on_calculate_again)
+
+        layout.addWidget(logo)
+        layout.addWidget(self.result_label)
+        layout.addWidget(again_btn)
+        self.setLayout(layout) 
+    
+    def set_result(self, total_capacity):
+        self.result_label.setText(f"Total Capacity: {total_capacity} objects")
+    
+    def on_calculate_again(self):
+        self.parent.stack.setCurrentIndex(0) # go back to screen 1 
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
