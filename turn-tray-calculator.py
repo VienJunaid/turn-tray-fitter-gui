@@ -20,19 +20,15 @@ directory = '' # Location of JSON files
 
 GAP = 3.175 # everything is in milimeters mm 
 
-def load_freezer(model_id, json_path):
-    # TODO: open the JSON file at json_path
-    # TODO: find the entry whose model_id field matches the argument
-    # TODO: return a dict with at minimum: { R, H, handle_bar_clearance }
-    # TODO: raise a clear error (KeyError or custom) if model_id is not found
-    # NOTE: keep all JSON-parsing logic here so the rest of the script never touches raw JSON
-    with open('freezer_models.json', 'r') as file:
+def load_freezer(model_id, json_path): 
+    with open(json_path, 'r') as file:
         data = json.load(file) 
     
-    if model_id in data:
-        pass
-    else:
-        raise KeyError("Freezer Model is not found in database.")
+    for model in data["models"]:
+        if model["model_id"] == model_id:
+            return model
+    raise KeyError("Freezer Model is not found in database.")
+
 
 def json_checker(json_path):
     # TODO: current logic checks if a string is "in" the directory string — that's wrong, fix it
