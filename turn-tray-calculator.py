@@ -31,8 +31,19 @@ class Screen1(QWidget):
         # MVE LOGO 
         logo = QLabel() 
         pixmap = QPixmap("MVE logos/white_logo.png")
+        pixmap = pixmap.scaledToWidth(300, Qt.TransformationMode.SmoothTransformation)
         logo.setPixmap(pixmap)
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Title 
+        title = QLabel("Turn Tray Estimation Fitter")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter) 
+        title.setStyleSheet("font-size: 26px; font-weight: bold; color: #ffffff; margin-bottom: 8px;")
+        
+        subtitle = QLabel("Enter a Freezer Model ID to begin")
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter) 
+        subtitle.setStyleSheet("font-size: 13px; color: #6a8ab0; margin-bottom: 24px")
+
 
         # Model ID input
         self.model_input = QLineEdit() 
@@ -41,8 +52,10 @@ class Screen1(QWidget):
         # Start button 
         start_btn = QPushButton("Start") 
         start_btn.clicked.connect(self.on_start) 
-
-        layout.addWidget(logo) 
+        
+        layout.addWidget(logo)
+        layout.addWidget(title)
+        layout.addWidget(subtitle) 
         layout.addWidget(self.model_input)
         layout.addWidget(start_btn)
         self.setLayout(layout) 
@@ -71,6 +84,7 @@ class Screen2(QWidget):
         # MVE Logo
         logo = QLabel() 
         pixmap = QPixmap("MVE logos/white_logo.png")
+        pixmap = pixmap.scaledToWidth(300, Qt.TransformationMode.SmoothTransformation)
         logo.setPixmap(pixmap)
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -155,6 +169,7 @@ class Screen3(QWidget):
         # MVE Logo 
         logo = QLabel() 
         pixmap = QPixmap("MVE logos/white_logo.png")
+        pixmap = pixmap.scaledToWidth(300, Qt.TransformationMode.SmoothTransformation)
         logo.setPixmap(pixmap)
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -209,34 +224,31 @@ class MainWindow(QMainWindow):
                     color: #6a8ab0;
                 }
                 QPushButton {
-                    background-color: 
-                    color: 
-                    border: 
-                    border-radius:
-                    padding: 
-                    font-size: 
-                    font-weight: 
+                    background-color: #1a3a6e; 
+                    color: #ffffff;
+                    border: none;
+                    border-radius: 8px; 
+                    padding: 12px 24px; 
+                    font-size: 14px
+                    font-weight: bold; 
                 }
                 QPushButton:hover {
-                    background-color:
+                    background-color: #2a5298;
                 }
                 QPushButton:pressed {
-                    background-color
+                    background-color: #0d2040; 
                 }
                 QComboBox::drop-down {
-                    border:
-                    padding-right:
+                    border: none; 
+                    padding-right: 10px; 
                 }
                 QComboBox QAbstractItemView {
-                    background-color:
-                    color: 
-                    selection-background-color:
-                    border:
+                    background-color: #152642;
+                    color: #ffffff;
+                    selection-background-color: #2a5298;
+                    border: 1px solid #2a4a7f;
                 }
-            """")
-
-
-
+            """)
 
         self.freezer = None # Store loaded freezer dict so all screens can access it
         
