@@ -181,6 +181,63 @@ class Screen3(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        
+        self.setWindowTitle("Turn Tray Fitter") 
+        self.setMinimumSize(480, 600) 
+        self.setStyleSheet("""
+            QMainWindow, QWidget {
+                background-color: #0a1628;
+                color: #ffffff;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-size: 14px;
+                }
+                QLabel {
+                    color: #ffffff
+                }
+                QLineEdit, QComboBox {
+                    background-color: #152642;
+                    color: #ffffff;
+                    border: 1px solid #2a4a7f;
+                    border-radius: 6px;
+                    padding: 10px 14px; 
+                    font-size: 14px; 
+                }
+                QLineEdit:focus, QComboBox: focus {
+                    border: 1px solid #4a90d9;
+                }
+                QLineEdit: placeholder {
+                    color: #6a8ab0;
+                }
+                QPushButton {
+                    background-color: 
+                    color: 
+                    border: 
+                    border-radius:
+                    padding: 
+                    font-size: 
+                    font-weight: 
+                }
+                QPushButton:hover {
+                    background-color:
+                }
+                QPushButton:pressed {
+                    background-color
+                }
+                QComboBox::drop-down {
+                    border:
+                    padding-right:
+                }
+                QComboBox QAbstractItemView {
+                    background-color:
+                    color: 
+                    selection-background-color:
+                    border:
+                }
+            """")
+
+
+
+
         self.freezer = None # Store loaded freezer dict so all screens can access it
         
         self.stack = QStackedWidget()
