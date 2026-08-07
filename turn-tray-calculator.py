@@ -39,27 +39,48 @@ class Screen1(QWidget):
         title = QLabel("Turn Tray Estimation Fitter")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter) 
         title.setStyleSheet("font-size: 26px; font-weight: bold; color: #ffffff; margin-bottom: 8px;")
-        
+       
+        # Subtitles
         subtitle = QLabel("Enter a Freezer Model ID to begin")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter) 
         subtitle.setStyleSheet("font-size: 13px; color: #6a8ab0; margin-bottom: 24px")
-
 
         # Model ID input
         self.model_input = QLineEdit() 
         self.model_input.setPlaceholderText("Enter Freezer Model ID")
 
         # Start button 
-        start_btn = QPushButton("Start") 
-        start_btn.clicked.connect(self.on_start) 
+        start_btn = QPushButton("Start")
+        start_btn.setStyleSheet(""" 
+        QPushButton {
+            background-color: #ffffff;
+            color: #0a1628;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 0px;
+            font-size: 15px;
+            font-weight: bold;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+        QPushButton:hover {
+            background-color: #dce8ff;
+        }
+        QPushButton:pressed {
+            background-color: #b0c8f0;
+        }
+        """)
+        start_btn.clicked.connect(self.on_start) # Function call here after button press  
         
+        # Layout 
         layout.addWidget(logo)
         layout.addWidget(title)
         layout.addWidget(subtitle) 
         layout.addWidget(self.model_input)
         layout.addWidget(start_btn)
         self.setLayout(layout) 
-    
+   
+    # Function when start button is pressed 
     def on_start(self):
         model_id = self.model_input.text().strip() 
         json_path = os.path.join(directory, "freezer_models.json")
@@ -68,7 +89,7 @@ class Screen1(QWidget):
             QMessageBox.critical(self, "Error", "freezer_models.json not found")
             return 
         try:
-            self.parent.freezer = load_freezer(model_id, json_path)
+            self.parent.freezer = load_freezer(model_id, json_path) # load freezer data 
             self.parent.stack.setCurrentIndex(1)
         except KeyError as e:
             QMessageBox.critical(self, "Error", str(e))
@@ -87,6 +108,12 @@ class Screen2(QWidget):
         pixmap = pixmap.scaledToWidth(300, Qt.TransformationMode.SmoothTransformation)
         logo.setPixmap(pixmap)
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # Title 
+        title = QLabel("Select a shape and fill in the dimensions")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter) 
+        title.setStyleSheet("font-size: 26px; font-weight: bold; color: #ffffff; margin-bottom: 8px;")
+
 
         # Shape dropdown 
         shape_label = QLabel("Select Shape:")
@@ -97,9 +124,30 @@ class Screen2(QWidget):
         self.dim_layout = QVBoxLayout() 
 
         calc_btn = QPushButton("Calculate")
+        calc_btn.setStyleSheet(""" 
+        QPushButton {
+            background-color: #ffffff;
+            color: #0a1628;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 0px;
+            font-size: 15px;
+            font-weight: bold;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+        QPushButton:hover {
+            background-color: #dce8ff;
+        }
+        QPushButton:pressed {
+            background-color: #b0c8f0;
+        }
+        """)
         calc_btn.clicked.connect(self.on_calculate)
 
         layout.addWidget(logo)
+        #layout.setSpacing(10) # 16 px gap between all widgets 
+        layout.addWidget(title) 
         layout.addWidget(shape_label)      
         layout.addWidget(self.shape_dropdown)
         layout.addLayout(self.dim_layout)
@@ -107,7 +155,8 @@ class Screen2(QWidget):
         self.setLayout(layout) 
 
         self.on_shape_changed(0) # default fields for first shape 
-
+    
+    # Helper Function for Screen 2
     def on_shape_changed(self, index): 
         # clear existing dimensions field 
         while self.dim_layout.count():
@@ -176,9 +225,29 @@ class Screen3(QWidget):
         # Result Label 
         self.result_label = QLabel("Total Capacity: --") 
         self.result_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.result_label.setStyleSheet("font-size: 26px; font-weight: bold; color: #ffffff; margin-bottom: 8px;")
 
         # Calculate again button 
         again_btn = QPushButton("Calculate Again")
+        again_btn.setStyleSheet(""" 
+        QPushButton {
+            background-color: #ffffff;
+            color: #0a1628;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 0px;
+            font-size: 15px;
+            font-weight: bold;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+        QPushButton:hover {
+            background-color: #dce8ff;
+        }
+        QPushButton:pressed {
+            background-color: #b0c8f0;
+        }
+        """)
         again_btn.clicked.connect(self.on_calculate_again)
 
         layout.addWidget(logo)
@@ -224,19 +293,20 @@ class MainWindow(QMainWindow):
                     color: #6a8ab0;
                 }
                 QPushButton {
-                    background-color: #1a3a6e; 
-                    color: #ffffff;
+                    background-color: #ffffff; 
+                    color: #0a1628;
                     border: none;
-                    border-radius: 8px; 
-                    padding: 12px 24px; 
+                    border-radius: 10px;
+                    padding: 12px 0px; 
+                    font-family: 'Segoe UI', Arial, sans-serif; 
                     font-size: 14px
                     font-weight: bold; 
                 }
                 QPushButton:hover {
-                    background-color: #2a5298;
+                    background-color: #dce8ff;
                 }
                 QPushButton:pressed {
-                    background-color: #0d2040; 
+                    background-color: #b0c8f0; 
                 }
                 QComboBox::drop-down {
                     border: none; 
