@@ -20,7 +20,7 @@ from typing import Dict, List, Optional, Tuple
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QFormLayout,
     QLabel, QComboBox, QLineEdit, QPushButton, QSpinBox, QDoubleSpinBox, QListWidget,
-    QListWidgetItem, QMessageBox, QGraphicsView, QGraphicsScene, QGroupBox,
+    QListWidgetItem, QMessageBox, QGraphicsView, QGraphicsScene, QGroupBox, QScrollArea,
 )
 from PyQt6.QtGui import QColor, QBrush, QPen, QPixmap, QPainter, QIcon, QPolygonF
 from PyQt6.QtCore import Qt, QPointF
@@ -487,10 +487,13 @@ class ControlPanel(QWidget):
         # --- Freezer / turn tray selection ---
         freezer_box = QGroupBox("Freezer / Turn Tray")
         freezer_layout = QFormLayout()
+        freezer_layout.setVerticalSpacing(12)
         self.freezer_combo = QComboBox()
         self.freezer_combo.currentIndexChanged.connect(self.on_freezer_changed)
         self.radius_label = QLabel("--")
+        self.radius_label.setMinimumHeight(22)
         self.height_label = QLabel("--")
+        self.height_label.setMinimumHeight(22)
         freezer_layout.addRow("Model:", self.freezer_combo)
         freezer_layout.addRow("Tray radius (mm):", self.radius_label)
         freezer_layout.addRow("Interior height (mm):", self.height_label)
@@ -825,10 +828,17 @@ class MainWindow(QMainWindow):
 
         outer_layout.addLayout(header)
 
+        control_scroll = QScrollArea()
+        control_scroll.setWidget(self.control_panel)
+        control_scroll.setWidgetResizable(True)
+        control_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        control_scroll.setFixedWidth(340)
+        control_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+
         content_layout = QHBoxLayout()
-        content_layout.addWidget(self.control_panel, 0)
-        content_layout.addWidget(self.canvas, 1) 
-        outer_layout.addLayout(content_layout) 
+        content_layout.addWidget(control_scroll, 0)
+        content_layout.addWidget(self.canvas, 1)
+        outer_layout.addLayout(content_layout)
 
         central.setLayout(outer_layout)
         self.setCentralWidget(central) 
