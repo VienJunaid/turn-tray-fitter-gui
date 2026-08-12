@@ -22,12 +22,13 @@ from PyQt6.QtWidgets import (
     QLabel, QComboBox, QLineEdit, QPushButton, QSpinBox, QDoubleSpinBox, QListWidget,
     QListWidgetItem, QMessageBox, QGraphicsView, QGraphicsScene, QGroupBox,
 )
-from PyQt6.QtGui import QColor, QBrush, QPen, QPainter, QIcon, QPolygonF
+from PyQt6.QtGui import QColor, QBrush, QPen, QPixmap, QPainter, QIcon, QPolygonF
 from PyQt6.QtCore import Qt, QPointF
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 JSON_PATH = os.path.join(DIRECTORY, "freezer_models.json")
 ICON_PATH = os.path.join(DIRECTORY, "MVE logos", "icon_blue.ico")
+LOGO_PATH = os.path.join(DIRECTORY, "MVE logos", "white_logo.png")
 
 DEFAULT_GAP = 3.175            # mm, 1/8" mandatory spacing (wall, object-object)
 CENTER_POLE_DIAMETER = 25.4    # mm, ~1" turn tray center spindle
@@ -309,6 +310,30 @@ def pack_tray(freezer: dict, object_specs: List[ObjectSpec], gap: float = DEFAUL
     return placed, results
 
 
+def compute_max_fit(freezer: dict, spec: ObjectSpec, gap: float = DEFAULT_GAP,
+                     sweep_deg: float = 360.0) -> Dict[str, int]:
+    """Max quantity of a single object type that fits in the whole freezer,
+    stacked across every vertical layer the interior height allows (see
+    freezer-packing-algorithm.md sections 4-5). objects_per_layer comes from
+    an actual pack_tray() placement rather than the spec's ring/grid formulas,
+    since real geometric placement is already exact here.
+    """
+    height = spec.dims["s"] if spec.shape == "cube" else spec.dims["h"]
+    h_eff = height + gap
+    h_usable = freezer["H"] - freezer["handle_bar_clearance"]
+    num_layers = max(0, math.floor(h_usable / h_eff))
+
+    if num_layers == 0:
+        return {"per_layer": 0, "num_layers": 0, "total": 0}
+
+    probe = ObjectSpec(shape=spec.shape, dims=spec.dims, quantity=10**6,
+                        color=spec.color, label=spec.label)
+    _, results = pack_tray(freezer, [probe], gap, sweep_deg)
+    per_layer = results[probe.label]["placed"]
+
+    return {"per_layer": per_layer, "num_layers": num_layers, "total": per_layer * num_layers}
+
+
 # --------------------------------------------------------------------------
 # GUI
 # --------------------------------------------------------------------------
@@ -334,6 +359,7 @@ STYLESHEET = """
         color: #6a8ab0;
     }
     QLabel { color: #ffffff; }
+    QLabel#titleLabel { font-size: 32px; font-weight: bold; }
     QLineEdit, QComboBox, QSpinBox {
         background-color: #152642;
         color: #ffffff;
@@ -512,14 +538,31 @@ class ControlPanel(QWidget):
         self.qty_spin.setValue(1)
 
         add_btn = QPushButton("Add to Tray")
+        add_btn.setFixedSize(110, 32)
         add_btn.clicked.connect(self.on_add_object)
+
+        max_fit_btn = QPushButton("Max Fit")
+        max_fit_btn.setFixedSize(110, 32)
+        max_fit_btn.setToolTip(
+            "Add this object at the maximum quantity that fits in the whole "
+            "freezer, accounting for tray radius, gap, interior height, and "
+            "handle bar clearance."
+        )
+        max_fit_btn.clicked.connect(self.on_max_fit)
+
+        add_btn_row = QHBoxLayout()
+        add_btn_row.addStretch()
+        add_btn_row.addWidget(add_btn)
+        add_btn_row.addSpacing(12)
+        add_btn_row.addWidget(max_fit_btn)
+        add_btn_row.addStretch()
 
         add_layout.addWidget(QLabel("Shape:"))
         add_layout.addWidget(self.shape_combo)
         add_layout.addLayout(self.dim_form)
         add_layout.addWidget(QLabel("Quantity:"))
         add_layout.addWidget(self.qty_spin)
-        add_layout.addWidget(add_btn)
+        add_layout.addLayout(add_btn_row)
         add_box.setLayout(add_layout)
 
         # --- Object list ---
@@ -527,15 +570,18 @@ class ControlPanel(QWidget):
         list_layout = QVBoxLayout()
         self.object_list = QListWidget()
         remove_btn = QPushButton("Remove Selected")
+        remove_btn.setFixedWidth(150)
         remove_btn.clicked.connect(self.on_remove_selected)
         clear_btn = QPushButton("Clear All")
+        clear_btn.setFixedWidth(150) 
         clear_btn.clicked.connect(self.on_clear_all)
         list_layout.addWidget(self.object_list)
-        list_layout.addWidget(remove_btn)
-        list_layout.addWidget(clear_btn)
+        list_layout.addWidget(remove_btn, 0, Qt.AlignmentFlag.AlignHCenter)
+        list_layout.addWidget(clear_btn, 0, Qt.AlignmentFlag.AlignHCenter)
         list_box.setLayout(list_layout)
 
         pack_btn = QPushButton("Pack && Visualize")
+        pack_btn.setFixedWidth(200)         
         pack_btn.clicked.connect(self.on_pack)
 
         self.results_label = QLabel("")
@@ -546,7 +592,7 @@ class ControlPanel(QWidget):
         layout.addWidget(shape_box)
         layout.addWidget(add_box)
         layout.addWidget(list_box)
-        layout.addWidget(pack_btn)
+        layout.addWidget(pack_btn, 0, Qt.AlignmentFlag.AlignHCenter) 
         layout.addWidget(self.results_label)
         self.setLayout(layout)
 
@@ -632,6 +678,65 @@ class ControlPanel(QWidget):
         item.setForeground(QColor(color))
         self.object_list.addItem(item)
 
+    def on_max_fit(self):
+        freezer = self.main_window.freezer
+        if freezer is None:
+            QMessageBox.warning(self, "No freezer selected", "Select a freezer model first.")
+            return
+
+        shape_name = self.shape_combo.currentText()
+        shape = SHAPE_KEY[shape_name]
+
+        dims = {}
+        try:
+            for key, field_input in self.dim_inputs.items():
+                value = float(field_input.text())
+                if value <= 0:
+                    raise ValueError
+                dims[key] = value
+        except ValueError:
+            QMessageBox.warning(self, "Invalid input", "All dimensions must be positive numbers.")
+            return
+
+        gap = self.gap_spin.value()
+        sweep_deg = self.current_sweep_deg()
+        color = PALETTE[self.color_index % len(PALETTE)]
+
+        probe_spec = ObjectSpec(shape=shape, dims=dims, quantity=1, color=color, label="max-fit-probe")
+        capacity = compute_max_fit(freezer, probe_spec, gap, sweep_deg)
+
+        if capacity["total"] <= 0:
+            QMessageBox.warning(
+                self, "Doesn't fit",
+                "This object doesn't fit in the freezer at all — check its "
+                "height against the interior height and handle bar clearance, "
+                "or its footprint against the tray radius."
+            )
+            return
+
+        self.color_index += 1
+
+        if shape == "cylinder":
+            label = f"Cylinder r={dims['r']:g} h={dims['h']:g}"
+        elif shape == "cube":
+            label = f"Cube s={dims['s']:g}"
+        else:
+            label = f"Rect {dims['l']:g}x{dims['w']:g}x{dims['h']:g}"
+        label = f"{label} (qty {capacity['total']}, max fit)"
+
+        spec = ObjectSpec(shape=shape, dims=dims, quantity=capacity["total"], color=color, label=label)
+        self.object_specs.append(spec)
+
+        item = QListWidgetItem(f"● {label}")
+        item.setForeground(QColor(color))
+        self.object_list.addItem(item)
+
+        QMessageBox.information(
+            self, "Max fit calculated",
+            f"{capacity['per_layer']} per layer × {capacity['num_layers']} layers "
+            f"= {capacity['total']} total added to the tray."
+        )
+
     def on_remove_selected(self):
         for item in self.object_list.selectedItems():
             row = self.object_list.row(item)
@@ -696,11 +801,37 @@ class MainWindow(QMainWindow):
         self.control_panel.freezer_combo.addItems([m["model_id"] for m in self.models])
 
         central = QWidget()
-        layout = QHBoxLayout()
-        layout.addWidget(self.control_panel, 0)
-        layout.addWidget(self.canvas, 1)
-        central.setLayout(layout)
-        self.setCentralWidget(central)
+        outer_layout = QVBoxLayout()
+        outer_layout.setContentsMargins(0, 0, 0, 0)
+        outer_layout.setSpacing(8) 
+
+        header = QVBoxLayout()
+        header.setContentsMargins(10, 10, 10, 10)
+        header.setSpacing(4)
+
+        title_label = QLabel("Freezer Rack Capacity Estimator")
+        title_label.setObjectName("titleLabel")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        header.addWidget(title_label)
+
+        logo_label = QLabel()
+        logo_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        if os.path.isfile(LOGO_PATH):
+            pixmap = QPixmap(LOGO_PATH)
+            logo_label.setPixmap(
+                pixmap.scaledToHeight(80, Qt.TransformationMode.SmoothTransformation)
+            )
+        header.addWidget(logo_label)
+
+        outer_layout.addLayout(header)
+
+        content_layout = QHBoxLayout()
+        content_layout.addWidget(self.control_panel, 0)
+        content_layout.addWidget(self.canvas, 1) 
+        outer_layout.addLayout(content_layout) 
+
+        central.setLayout(outer_layout)
+        self.setCentralWidget(central) 
 
         if self.models:
             self.control_panel.on_freezer_changed(0)

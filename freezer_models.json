@@ -11,6 +11,103 @@
       "R": 695.0,
       "H": 885.19,
       "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1536P-190",
+      "R": 336.1,
+      "H": 800.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1539P-190",
+      "R": 336.1,
+      "H": 848.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1539R-190",
+      "R": 336.6,
+      "H": 819.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1542R-190",
+      "R": 336.1,
+      "H": 860.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1894R-190",
+      "R": 336.6,
+      "H": 946.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "815P-190",
+      "R": 213.1,
+      "H": 691.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "816P-2T-190",
+      "R": 211.1,
+      "H": 691.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "819P-190",
+      "R": 213.1,
+      "H": 874.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "HE800C",
+      "R": 213.1,
+      "H": 347.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1881R-190",
+      "R": 581.6,
+      "H": 835.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1894-4",
+      "R": 581.6,
+      "H": 957.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1892P-190",
+      "R": 581.6,
+      "H": 954.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1842P-150",
+      "R": 581.6,
+      "H": 405.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1877P-2T-150",
+      "R": 581.1,
+      "H": 743.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1879P-190",
+      "R": 581.6,
+      "H": 838.6,
+      "handle_bar_clearance": 25.4
+    },
+    {
+      "model_id": "1879P-150",
+      "R": 581.6,
+      "H": 813.6,
+      "handle_bar_clearance": 25.4
     }
   ]
 }
+
