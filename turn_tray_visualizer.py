@@ -34,9 +34,24 @@ DEFAULT_GAP = 3.175            # mm, 1/8" mandatory spacing (wall, object-object
 CENTER_POLE_DIAMETER = 25.4    # mm, ~1" turn tray center spindle
 
 PALETTE = [
-    "#4a90d9", "#e07b39", "#4caf50", "#c94f7c", "#f2c14e",
-    "#8e6bb0", "#3fbfbf", "#d9534f", "#8bc34a", "#ff8a65",
+    "#f7768e", "#e0af68", "#9ece6a", "#0db9d7", "#ff9e64",
+    "#b9f27c", "#7da6ff", "#449dab", "#73daca", "#c0caf5",
 ]
+
+# Tokyo Night-inspired — the Omarchy theme preset this box ships with —
+# pushed toward a more saturated navy blue per feedback: flat, solid-color
+# "software engineer" dev-tool palette, no purple.
+ACCENT = "#4c7cf0"
+ACCENT_HOVER = "#6690f5"
+ACCENT_PRESSED = "#3a63c4"
+BG = "#0f1a2e"
+SURFACE = "#152238"
+SURFACE_ALT = "#1b2c47"
+BORDER = "#2c3e5c"
+TEXT = "#c7d3f0"
+TEXT_MUTED = "#7086ab"
+SUCCESS = "#9ece6a"
+WARNING = "#e0af68"
 
 
 # --------------------------------------------------------------------------
@@ -338,53 +353,144 @@ def compute_max_fit(freezer: dict, spec: ObjectSpec, gap: float = DEFAULT_GAP,
 # GUI
 # --------------------------------------------------------------------------
 
-STYLESHEET = """
-    QMainWindow, QWidget {
-        background-color: #0a1628;
-        color: #ffffff;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        font-size: 13px;
-    }
-    QGroupBox {
-        border: 1px solid #2a4a7f;
-        border-radius: 8px;
-        margin-top: 10px;
-        padding-top: 10px;
-        font-weight: bold;
-    }
-    QGroupBox::title {
+STYLESHEET = f"""
+    QMainWindow, QWidget {{
+        background-color: {BG};
+        color: {TEXT};
+        font-family: 'JetBrainsMono Nerd Font', 'JetBrains Mono', 'Cascadia Mono', monospace;
+        font-size: 12px;
+    }}
+    QGroupBox {{
+        background-color: {SURFACE};
+        border: 1px solid {BORDER};
+        border-radius: 6px;
+        margin-top: 12px;
+        padding-top: 14px;
+        font-weight: 600;
+    }}
+    QGroupBox::title {{
         subcontrol-origin: margin;
-        left: 10px;
+        left: 12px;
         padding: 0 4px;
-        color: #6a8ab0;
-    }
-    QLabel { color: #ffffff; }
-    QLabel#titleLabel { font-size: 32px; font-weight: bold; }
-    QLineEdit, QComboBox, QSpinBox {
-        background-color: #152642;
-        color: #ffffff;
-        border: 1px solid #2a4a7f;
-        border-radius: 6px;
+        color: {ACCENT};
+    }}
+    QLabel {{ color: {TEXT}; background-color: transparent; }}
+    QLabel#titleLabel {{ font-size: 24px; font-weight: 700; color: {TEXT}; }}
+    QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
+        background-color: {SURFACE_ALT};
+        color: {TEXT};
+        border: 1px solid {BORDER};
+        border-radius: 4px;
         padding: 6px 10px;
-    }
-    QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
-        border: 1px solid #4a90d9;
-    }
-    QPushButton {
-        background-color: #ffffff;
-        color: #0a1628;
+    }}
+    QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {{
+        border: 1px solid {ACCENT};
+    }}
+    QPushButton {{
+        background-color: {ACCENT};
+        color: {BG};
         border: none;
-        border-radius: 8px;
+        border-radius: 4px;
         padding: 10px 0px;
-        font-weight: bold;
-    }
-    QPushButton:hover { background-color: #dce8ff; }
-    QPushButton:pressed { background-color: #b0c8f0; }
-    QListWidget {
-        background-color: #152642;
-        border: 1px solid #2a4a7f;
-        border-radius: 6px;
-    }
+        font-weight: 700;
+    }}
+    QPushButton:hover {{ background-color: {ACCENT_HOVER}; }}
+    QPushButton:pressed {{ background-color: {ACCENT_PRESSED}; }}
+    QPushButton#secondaryButton {{
+        background-color: transparent;
+        color: {TEXT_MUTED};
+        border: 1px solid {BORDER};
+    }}
+    QPushButton#secondaryButton:hover {{
+        color: {TEXT};
+        border: 1px solid {TEXT_MUTED};
+        background-color: {SURFACE_ALT};
+    }}
+    QPushButton#secondaryButton:pressed {{ background-color: {BORDER}; }}
+    QListWidget {{
+        background-color: {SURFACE_ALT};
+        border: 1px solid {BORDER};
+        border-radius: 4px;
+    }}
+    QScrollArea {{ background-color: transparent; border: none; }}
+    QSpinBox::up-button, QDoubleSpinBox::up-button {{
+        subcontrol-origin: border;
+        subcontrol-position: top right;
+        width: 18px;
+        background-color: {ACCENT};
+        border: none;
+        border-top-right-radius: 4px;
+    }}
+    QSpinBox::down-button, QDoubleSpinBox::down-button {{
+        subcontrol-origin: border;
+        subcontrol-position: bottom right;
+        width: 18px;
+        background-color: {ACCENT};
+        border: none;
+        border-bottom-right-radius: 4px;
+    }}
+    QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+    QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{
+        background-color: {ACCENT_HOVER};
+    }}
+    QSpinBox::up-button:pressed, QDoubleSpinBox::up-button:pressed,
+    QSpinBox::down-button:pressed, QDoubleSpinBox::down-button:pressed {{
+        background-color: {ACCENT_PRESSED};
+    }}
+    QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {{
+        image: none;
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-bottom: 5px solid {BG};
+    }}
+    QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {{
+        image: none;
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid {BG};
+    }}
+    QScrollBar:vertical {{
+        background: {SURFACE_ALT};
+        width: 14px;
+        margin: 0;
+        border-radius: 4px;
+    }}
+    QScrollBar::handle:vertical {{
+        background: {ACCENT};
+        border-radius: 4px;
+        min-height: 28px;
+    }}
+    QScrollBar::handle:vertical:hover {{ background: {ACCENT_HOVER}; }}
+    QScrollBar::handle:vertical:pressed {{ background: {ACCENT_PRESSED}; }}
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+        height: 0;
+        background: none;
+        border: none;
+    }}
+    QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{ background: none; }}
+    QScrollBar:horizontal {{
+        background: {SURFACE_ALT};
+        height: 14px;
+        margin: 0;
+        border-radius: 4px;
+    }}
+    QScrollBar::handle:horizontal {{
+        background: {ACCENT};
+        border-radius: 4px;
+        min-width: 28px;
+    }}
+    QScrollBar::handle:horizontal:hover {{ background: {ACCENT_HOVER}; }}
+    QScrollBar::handle:horizontal:pressed {{ background: {ACCENT_PRESSED}; }}
+    QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+        width: 0;
+        background: none;
+        border: none;
+    }}
+    QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {{ background: none; }}
 """
 
 SHAPE_FIELDS = {
@@ -401,7 +507,7 @@ class TrayCanvas(QGraphicsView):
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.setStyleSheet("background-color: #0a1628; border: none;")
+        self.setStyleSheet(f"background-color: {BG}; border: none;")
         self._last_rect = None
 
     def draw_tray(self, freezer: Optional[dict], placed_objects: List[PlacedObject],
@@ -416,23 +522,23 @@ class TrayCanvas(QGraphicsView):
         bounds = angle_bounds(sweep_deg)
 
         outer_d = 2 * R * s
-        wall_pen = QPen(QColor("#4a90d9"))
+        wall_pen = QPen(QColor(ACCENT))
         wall_pen.setWidth(2)
         R_eff = R - gap
-        eff_pen = QPen(QColor("#2a4a7f"))
+        eff_pen = QPen(QColor(BORDER))
         eff_pen.setStyle(Qt.PenStyle.DashLine)
 
         if bounds is None:
-            self.scene.addEllipse(-R * s, -R * s, outer_d, outer_d, wall_pen, QBrush(QColor("#152642")))
+            self.scene.addEllipse(-R * s, -R * s, outer_d, outer_d, wall_pen, QBrush(QColor(SURFACE)))
             self.scene.addEllipse(-R_eff * s, -R_eff * s, 2 * R_eff * s, 2 * R_eff * s, eff_pen)
         else:
-            self.scene.addPolygon(self._wedge_polygon(R, s, bounds), wall_pen, QBrush(QColor("#152642")))
+            self.scene.addPolygon(self._wedge_polygon(R, s, bounds), wall_pen, QBrush(QColor(SURFACE)))
             self.scene.addPolygon(self._wedge_polygon(R_eff, s, bounds), eff_pen, QBrush())
 
         pole_r = CENTER_POLE_DIAMETER / 2
-        pole_pen = QPen(QColor("#6a8ab0"))
+        pole_pen = QPen(QColor(TEXT_MUTED))
         self.scene.addEllipse(-pole_r * s, -pole_r * s, 2 * pole_r * s, 2 * pole_r * s,
-                               pole_pen, QBrush(QColor("#3a5578")))
+                               pole_pen, QBrush(QColor(SURFACE_ALT)))
 
         for obj in placed_objects:
             color = QColor(obj.spec.color)
@@ -573,10 +679,12 @@ class ControlPanel(QWidget):
         list_layout = QVBoxLayout()
         self.object_list = QListWidget()
         remove_btn = QPushButton("Remove Selected")
+        remove_btn.setObjectName("secondaryButton")
         remove_btn.setFixedWidth(150)
         remove_btn.clicked.connect(self.on_remove_selected)
         clear_btn = QPushButton("Clear All")
-        clear_btn.setFixedWidth(150) 
+        clear_btn.setObjectName("secondaryButton")
+        clear_btn.setFixedWidth(150)
         clear_btn.clicked.connect(self.on_clear_all)
         list_layout.addWidget(self.object_list)
         list_layout.addWidget(remove_btn, 0, Qt.AlignmentFlag.AlignHCenter)
@@ -774,7 +882,7 @@ class ControlPanel(QWidget):
             r = results[spec.label]
             total_requested += r["requested"]
             total_placed += r["placed"]
-            status = "#4caf50" if r["leftover"] == 0 else "#e07b39"
+            status = SUCCESS if r["leftover"] == 0 else WARNING
             lines.append(
                 f'<span style="color:{spec.color}">●</span> {spec.label}: '
                 f'<span style="color:{status}">{r["placed"]}/{r["requested"]} placed</span>'
